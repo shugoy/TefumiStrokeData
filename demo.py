@@ -7,6 +7,7 @@ import numpy as np
 from vis import drawChar
 import json
 import sys
+import gzip
 
 class Application(tk.Frame):
     def __init__(self, master=None, text=None):
@@ -80,7 +81,7 @@ class Application(tk.Frame):
                 command = self.method_changed).pack(anchor=tk.NW)
         
         ### load stroke data -----------------------------------------------
-        with open("data.json", "r") as f:
+        with gzip.open("data.json.gz", "rt") as f:
             self.data = json.load(f)
 
         ### draw -----------------------------------------------

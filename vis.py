@@ -1,7 +1,7 @@
-import json
-import numpy as np
-import pprint
 import os, sys
+import numpy as np
+import json
+import gzip
 
 import matplotlib as mpl
 mpl.use('TkAgg')
@@ -56,22 +56,15 @@ def drawChar(data, name, ax, method="density", radius=100, alpha=1, n_sample=30,
     
 
 def drawChars(data, text):
-    fig, axes = plt.subplots(1,len(text)+2, figsize=(len(text)*4, 4))
+    fig, axes = plt.subplots(1,len(text), figsize=(len(text)*4, 4))
     
-    sli_r = Slider(axes[-2], 'Radius', 10, 200, valinit=100, valstep=1, orientation="vertical")
-    sli_a = Slider(axes[-1], 'Alpha', 0, 1, valinit=1, valstep=0.01, orientation="vertical")
-    
-    def update(val):
-        drawChar(data, text[0], axes[0], "pressure_raw", radius=sli_r.val)
-    
-    update(0)
-    sli_r.on_changed(update)
-    
+    drawChar(data, text[0], axes, "pressure_raw")
+        
     plt.show()
 
 
 if __name__ == '__main__':
-    with open("data.json", "r") as f:
+    with gzip.open("data.json.gz", "rt") as f:
         data = json.load(f)
 
     drawChars(data, sys.argv[1])
