@@ -10,7 +10,7 @@ n_points: 一画ごとの点の数
 ```
 
 
-Pythonで文字を表示するデモ
+## 文字を表示するデモ
 ```
 python demo.py
 ```
