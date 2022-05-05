@@ -60,10 +60,12 @@ def drawChar(
             ax.scatter(
                 Xs, -Ys, s=radius*Ps if radius_by_pressure else radius, 
                 c=Ps, cmap=cmap, norm=Normalize(0,1), alpha=alpha, linewidths=0)
+        else:
+            raise NotImplementedError(method)
 
 
-def drawChars(data, text, opt):
-    fig, axes = plt.subplots(1,len(text)*3, figsize=(len(text)*4*3, 4))
+def compareChars(data, text, opt):
+    fig, axes = plt.subplots(1, 3, figsize=(4*3, 4))
     
     drawChar(data, text[0], axes[0], "pressure_raw", opt.radius, opt.alpha, opt.n_sample, opt.n_interpolate, opt.radius_by_pressure, opt.colormap)
     drawChar(data, text[0], axes[1], "pressure_uniform", opt.radius, opt.alpha, opt.n_sample, opt.n_interpolate, opt.radius_by_pressure, opt.colormap)
@@ -88,5 +90,5 @@ if __name__ == '__main__':
     with gzip.open("data.json.gz", "rt") as f:
         data = json.load(f)
 
-    drawChars(data, opts.text, opts)
+    compareChars(data, opts.text, opts)
 
