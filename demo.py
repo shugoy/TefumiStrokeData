@@ -14,7 +14,7 @@ class Application(tk.Frame):
         super().__init__(master)
         self.master = master
         self.master.title('Tefumi Viewer')
-                    
+        
         #-----------------------------------------------
         frame = tk.Frame(self.master)        
         self.fig = Figure()
@@ -31,9 +31,25 @@ class Application(tk.Frame):
             self.text.insert(tk.END, text)
         self.text.bind('<Return>', self.on_enter)
         self.text.pack(anchor=tk.NW)
-        #-----------------------------------------------
+
+        # visualization method -----------------------------------------------
+        tk.Label(self.master, text="Visualization method").pack(anchor=tk.NW)
+        self.radio_value = tk.IntVar(value = 0)
+        self.method_values = {
+            "pressure_raw": 0,
+            "pressure_uniform": 1,
+            "density": 2
+        }
+        self.method = list(self.method_values.keys())[0]
+        for k, value in self.method_values.items():
+            ttk.Radiobutton(
+                self.master, text = k, variable = self.radio_value, value = value, 
+                command = self.method_changed).pack(anchor=tk.NW)
+
+        # visual options -----------------------------------------------
         frame = tk.Frame(self.master)
 
+        #-----------------------------------------------
         tk.Label(frame, text="Radius").grid(row=0, column=0)
         slider_radius = tk.Scale(
             frame, from_=1, to=200, orient=tk.HORIZONTAL, 
@@ -64,21 +80,27 @@ class Application(tk.Frame):
         self.n_sample = 30
         slider_n_sample.set(self.n_sample)
         slider_n_sample.grid(row=3, column=1)
-
-        frame.pack(anchor=tk.NW)
         
         #-----------------------------------------------
-        self.radio_value = tk.IntVar(value = 0)
-        self.method_values = {
-            "pressure_raw": 0,
-            "pressure_uniform": 1,
-            "density": 2
-        }
-        self.method = list(self.method_values.keys())[0]
-        for k, value in self.method_values.items():
-            ttk.Radiobutton(
-                self.master, text = k, variable = self.radio_value, value = value, 
-                command = self.method_changed).pack(anchor=tk.NW)
+        tk.Label(frame, text="N_inter").grid(row=4, column=0)
+        slider_n_inter = tk.Scale(
+            frame, from_=1, to=20, orient=tk.HORIZONTAL, 
+            command = self.slider_n_inter_changed)
+        self.n_inter = 1
+        slider_n_inter.set(self.n_inter)
+        slider_n_inter.grid(row=4, column=1)
+        
+        #-----------------------------------------------
+        # https://matplotlib.org/3.5.0/tutorials/colors/colormaps.html
+        tk.Label(frame, text="colormap").grid(row=5, column=0)
+        options = ["turbo", "jet", "Spectral", "viridis", "plasma", "inferno", "magma", "cividis"]
+        self.colormap_var = tk.StringVar(frame)
+        self.colormap_var.set(options[0])
+        self.colormap_menu = tk.OptionMenu(frame, self.colormap_var, *options, command=self.optionmenu_changed)
+        self.colormap_menu.grid(row=5, column=1)
+        
+        #-----------------------------------------------
+        frame.pack(anchor=tk.NW)
         
         ### load stroke data -----------------------------------------------
         with gzip.open("data.json.gz", "rt") as f:
@@ -104,7 +126,10 @@ class Application(tk.Frame):
                 radius=self.radius, 
                 alpha=self.alpha, 
                 n_sample=self.n_sample,
-                radius_by_pressure=self.radius_by_pressure.get())
+                n_interpolate=self.n_inter, 
+                radius_by_pressure=self.radius_by_pressure.get(),
+                cmap=self.colormap_var.get(),
+                )
         self.fig_canvas.draw()
         
     def slider_changed(self, v):
@@ -116,14 +141,21 @@ class Application(tk.Frame):
         self.draw()
     
     def slider_n_sample_changed(self, v):
-        self.n_sample = float(v)
+        self.n_sample = int(v)
+        self.draw()
+
+    def slider_n_inter_changed(self, v):
+        self.n_inter = int(v)
         self.draw()
         
     def method_changed(self):
         methods = list(self.method_values.keys())
         self.method = methods[int(self.radio_value.get())]
         self.draw()
-        
+
+    def optionmenu_changed(self, v):
+        self.draw()
+
     def on_enter(self, v):
         self.fig.clf()
         self.axes = []

@@ -2,16 +2,18 @@ from re import S
 import numpy as np
 
 
-def calc_inter_values(Xs, Ys, Ps, n_inter=10):
+def calc_inter_values(Xs, n_inter=10):
     xs = np.array([])
-    ys = np.array([])
-    ps = np.array([])
     for i in range(len(Xs) - 1):
         xs = np.append(xs, np.linspace(Xs[i], Xs[i+1], n_inter))
-        ys = np.append(ys, np.linspace(Ys[i], Ys[i+1], n_inter))
-        ps = np.append(ps, np.linspace(Ps[i], Ps[i+1], n_inter))
+    return xs
 
-    return xs, ys, ps
+
+def calc_interpolation(arrays, n_inter=10):
+    out = []
+    for Xs in arrays:
+        out.append(calc_inter_values(Xs, n_inter))
+    return out    
 
 
 def calc_dists(Xs, Ys):
@@ -36,19 +38,30 @@ def uniform_stroke(Xs, Ys, Ps, n_points_per_length=10, use_secret=True):
 
     target_values = np.linspace(0, total_length, int(total_length * n_points_per_length)+2)
     ind = np.searchsorted(cdf, target_values, side='left')
+    # ind_right = np.searchsorted(cdf, target_values, side='right')
+        
+    # import matplotlib.pyplot as plt
+    # fig, ax = plt.subplots()
+    # ax.scatter(np.linspace(0, len(cdf), len(cdf)), cdf)
+    # ax.scatter(np.linspace(0, len(cdf), len(cdf))[ind], cdf[ind], marker="x")
+    # # for tv, x in zip(target_values, np.linspace(0, len(cdf), len(cdf))[ind]):
+    # for tv in target_values:
+    #     ax.plot([0,len(cdf)], [tv, tv], color="gray")
+    #     # ax.scatter(np.linspace(0, len(cdf), len(cdf))[ind], target_values, marker="x")    
 
     if use_secret:
-        ind_l = ind#[:-1]
-        ind_r = np.clip(ind + 1, 0, ind[-1])
+        ind1 = ind[1:]
+        ind0 = np.clip(ind1 - 1, 0, ind[-1])
 
-        tl = np.abs(cdf[ind_l] - target_values)
-        tr = np.abs(cdf[ind_r] - target_values)
-        t = tl / (tl + tr)
+        t0 = target_values[1:] - cdf[ind0]
+        t1 = cdf[ind1] - target_values[1:]
+        t = t0 / (t0 + t1)
 
         def secret(x):
-            xl = x[ind_l]
-            xr = x[ind_r]    
-            return (1-t) * xl + t * xr
+            x0 = x[ind0]
+            x1 = x[ind1]
+            xt = (1-t) * x0 + t * x1
+            return np.append(x[0], xt)
 
         return secret(Xs), secret(Ys), secret(Ps), (ind, cdf)
     else:
