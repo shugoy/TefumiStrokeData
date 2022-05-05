@@ -20,9 +20,6 @@ python demo.py
 ![](images/demo_density.png)
 
 
-いくつか文字の抜けがあります．`missing_chars.txt`に一覧をまとめています．
-
-
 ## Citation
 https://dl.acm.org/doi/abs/10.1145/3102163.3102197
 ```
