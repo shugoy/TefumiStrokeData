@@ -1,5 +1,5 @@
 # Tefumi Strokes Data
-未踏2016![「手書き文字を美しく書くためのソフトウェア」](https://www.ipa.go.jp/jinzai/mitou/2016/seika.html)で用いたアノテーションフォントのデータです．
+未踏2016[「手書き文字を美しく書くためのソフトウェア」](https://www.ipa.go.jp/jinzai/mitou/2016/seika.html)で用いたアノテーションフォントのデータです．
 
 ```
 x: x座標
